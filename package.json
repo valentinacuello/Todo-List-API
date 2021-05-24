@@ -9,6 +9,7 @@
     "body-parser": "^1.19.0",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
+    "diagram": "0.0.2",
     "dotenv": "^8.2.0",
     "dotenv-override": "^5.0.1",
     "ejs": "^3.1.6",
@@ -21,7 +22,8 @@
     "pg": "^8.6.0",
     "reflect-metadata": "^0.1.13",
     "tsc-watch": "^4.2.9",
-    "typeorm": "^0.2.32"
+    "typeorm": "^0.2.32",
+    "typeorm-uml": "^1.6.2"
   },
   "devDependencies": {
     "@admin-bro/express": "^3.1.0",
@@ -49,7 +51,8 @@
     "start": "NODE_ENV=development tsc-watch --project . --onSuccess 'nodemon ./dist/app.js'",
     "build": "rm -rf ./dist && tsc --project ./",
     "makemigrations": "typeorm migration:generate -n M && npm run build",
-    "migrate": "typeorm migration:run"
+    "migrate": "typeorm migration:run",
+    "diagram": "tsc && typeorm-uml ormconfig.js"
   },
   "keywords": [],
   "author": "Manuel Ortega Carcamo",

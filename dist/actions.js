@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -36,12 +47,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.getUsers = exports.createUser = void 0;
+exports.deleteUser = exports.getUserId = exports.postTodos = exports.getTodos = exports.getUsers = exports.createUser = void 0;
 var typeorm_1 = require("typeorm"); // getRepository"  traer una tabla de la base de datos asociada al objeto
 var Users_1 = require("./entities/Users");
 var utils_1 = require("./utils");
+var Todos_1 = require("./entities/Todos");
 var createUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userRepo, user, newUser, results;
+    var userRepo, user, newUser, results, userCreated, todo, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -64,6 +76,18 @@ var createUser = function (req, res) { return __awaiter(void 0, void 0, void 0, 
                 return [4 /*yield*/, typeorm_1.getRepository(Users_1.Users).save(newUser)];
             case 2:
                 results = _a.sent();
+                return [4 /*yield*/, typeorm_1.getRepository(Users_1.Users).findOne(req.params.user_id)];
+            case 3:
+                userCreated = _a.sent();
+                if (!userCreated)
+                    throw new utils_1.Exception("El usuario no existe");
+                todo = new Todos_1.Todos();
+                todo.label = "Ejemplo";
+                todo.done = false;
+                todo.user = userCreated;
+                return [4 /*yield*/, typeorm_1.getRepository(Todos_1.Todos).save(todo)];
+            case 4:
+                result = _a.sent();
                 return [2 /*return*/, res.json(results)];
         }
     });
@@ -81,3 +105,82 @@ var getUsers = function (req, res) { return __awaiter(void 0, void 0, void 0, fu
     });
 }); };
 exports.getUsers = getUsers;
+var getTodos = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var users;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, typeorm_1.getRepository(Users_1.Users).findOne(req.params.user_id, { relations: ["todos"] })];
+            case 1:
+                users = _a.sent();
+                if (!users) {
+                    return [2 /*return*/, res.json({ "message": "Not found" })];
+                }
+                return [2 /*return*/, res.json(users.todos)];
+        }
+    });
+}); };
+exports.getTodos = getTodos;
+var postTodos = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var todoList, newTodoValidation, users, newTodo, results;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                console.log("entré");
+                if (!req.body.label)
+                    throw new utils_1.Exception("Please provide a label");
+                if (!req.body.done)
+                    throw new utils_1.Exception("Please provide a state");
+                todoList = typeorm_1.getRepository(Todos_1.Todos);
+                return [4 /*yield*/, todoList.findOne({ where: { label: req.body.label, user: req.body.user } })];
+            case 1:
+                newTodoValidation = _a.sent();
+                if (newTodoValidation)
+                    throw new utils_1.Exception("The todo already exists");
+                return [4 /*yield*/, typeorm_1.getRepository(Users_1.Users).findOne(req.params.user_id)];
+            case 2:
+                users = _a.sent();
+                if (!users)
+                    throw new utils_1.Exception("The user is not found");
+                newTodo = typeorm_1.getRepository(Todos_1.Todos).create(__assign(__assign({}, req.body), { user: users }));
+                return [4 /*yield*/, typeorm_1.getRepository(Todos_1.Todos).save(newTodo)];
+            case 3:
+                results = _a.sent();
+                return [2 /*return*/, res.json(results)];
+        }
+    });
+}); };
+exports.postTodos = postTodos;
+var getUserId = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var users, results;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, typeorm_1.getRepository(Users_1.Users).findOne(req.params.user_id)];
+            case 1:
+                users = _a.sent();
+                if (!users)
+                    throw new utils_1.Exception("The user is not found");
+                return [4 /*yield*/, typeorm_1.getRepository(Users_1.Users).save(users)];
+            case 2:
+                results = _a.sent();
+                return [2 /*return*/, res.json(results)];
+        }
+    });
+}); };
+exports.getUserId = getUserId;
+var deleteUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var users, results;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, typeorm_1.getRepository(Users_1.Users).findOne(req.params.user_id)];
+            case 1:
+                users = _a.sent();
+                if (!!users) return [3 /*break*/, 2];
+                return [2 /*return*/, res.json({ "message": "User not found" })];
+            case 2: return [4 /*yield*/, typeorm_1.getRepository(Users_1.Users)["delete"](users)];
+            case 3:
+                results = _a.sent();
+                return [2 /*return*/, res.json(results)];
+        }
+    });
+}); };
+exports.deleteUser = deleteUser;

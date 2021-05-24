@@ -13,4 +13,9 @@ var actions_1 = require("./actions");
 var router = express_1.Router();
 // signup route, creates a new user in the DB
 router.post('/user', utils_1.safe(actions_1.createUser));
+router.get('/todos/user/:user_id', utils_1.safe(actions_1.getTodos));
+router.get('/todos/user', utils_1.safe(actions_1.getUsers));
+router.get('/user/:user_id', utils_1.safe(actions_1.getUserId));
+router.post('/todos/user/:user_id', utils_1.safe(actions_1.postTodos));
+router["delete"]('/user/:user_id', utils_1.safe(actions_1.deleteUser));
 exports["default"] = router;
